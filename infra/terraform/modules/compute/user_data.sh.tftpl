@@ -1,0 +1,36 @@
+#!/bin/bash
+# Erststart der Instanz: Docker + Compose installieren, Instanzwerte ablegen, erstes Deployment.
+# Spätere Releases laufen über infra/scripts/release.sh (SSM Run Command -> /opt/brennholz/deploy.sh).
+set -euxo pipefail
+
+# 2 GB Swap als Puffer für Lastspitzen (App + RabbitMQ + Prometheus + Grafana auf 4 GB)
+dd if=/dev/zero of=/swapfile bs=1M count=2048
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+dnf install -y docker
+systemctl enable --now docker
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -fsSL -o /usr/local/lib/docker/cli-plugins/docker-compose \
+  https://github.com/docker/compose/releases/download/${compose_version}/docker-compose-linux-aarch64
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+mkdir -p /opt/brennholz
+cat > /opt/brennholz/instance.env <<'EOF'
+REGION=${region}
+DEPLOY_BUCKET=${deploy_bucket}
+IMAGES_BUCKET=${images_bucket}
+ECR_URL=${ecr_url}
+SSM_PREFIX=${ssm_prefix}
+SITE_HOST=${site_host}
+DB_HOST=${db_host}
+DB_NAME=${db_name}
+DB_USER=${db_username}
+ADMIN_EMAIL=${admin_email}
+EOF
+
+aws s3 cp s3://${deploy_bucket}/deploy.sh /opt/brennholz/deploy.sh
+chmod +x /opt/brennholz/deploy.sh
+/opt/brennholz/deploy.sh

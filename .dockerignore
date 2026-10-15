@@ -1,0 +1,9 @@
+target/
+uploads/
+docs/
+infra/
+.git/
+.idea/
+.claude/
+*.iml
+grafana-provisioning/

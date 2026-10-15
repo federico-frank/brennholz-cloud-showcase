@@ -1,0 +1,28 @@
+# TLS automatisch über Let's Encrypt, HTTP leitet auf HTTPS um.
+{$SITE_HOST} {
+	encode zstd gzip
+
+	header {
+		# Gesamte Demo inkl. Grafana und Bilder für Suchmaschinen gesperrt (F-043 S4)
+		X-Robots-Tag "noindex, nofollow, noarchive"
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# Kennzahlen holt Prometheus intern ab – von außen nicht erreichbar (Q14).
+	# Als eigener handle-Block: handle wird vor respond ausgewertet, sonst griffe der App-Proxy zuerst.
+	@actuator path /actuator /actuator/*
+	handle @actuator {
+		respond 404
+	}
+
+	handle /grafana* {
+		reverse_proxy grafana:3000
+	}
+
+	handle {
+		reverse_proxy app:8080
+	}
+}

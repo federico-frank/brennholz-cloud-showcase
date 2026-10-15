@@ -1,0 +1,20 @@
+# Schaufenster-Repo: zweites Sicherheitsnetz neben der Allowlist im privaten Repo.
+# Erst alles ignorieren, dann gezielt freigeben.
+/*
+!/.gitignore
+!/README.md
+!/Dockerfile
+!/.dockerignore
+!/prometheus.yml
+!/infra/
+!/src/
+!/grafana-provisioning/
+
+# Niemals: Terraform-State, Variablen, lokale Plugins
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*tfplan*
+.env

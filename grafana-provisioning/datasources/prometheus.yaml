@@ -1,0 +1,12 @@
+# Prometheus-Datenquelle mit fester UID (F-041 S5) – das Dashboard referenziert genau diese UID,
+# damit es auf jedem Rechner ohne Handarbeit funktioniert.
+apiVersion: 1
+datasources:
+  - name: prometheus
+    uid: dg0ufp5ddrtogf
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 5s
