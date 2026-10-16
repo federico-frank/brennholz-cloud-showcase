@@ -3,6 +3,11 @@ output "site_url" {
   value       = "https://${module.compute.site_host}"
 }
 
+output "name_servers" {
+  description = "Beim Registrar als eigene Nameserver eintragen"
+  value       = try(module.dns[0].name_servers, [])
+}
+
 output "public_ip" {
   value = module.compute.public_ip
 }

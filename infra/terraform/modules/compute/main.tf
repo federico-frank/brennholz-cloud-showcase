@@ -12,7 +12,10 @@ resource "aws_eip" "app" {
 
 locals {
   # Ohne eigene Domain: <ip>.sslip.io zeigt auf die Elastic IP – Let's Encrypt funktioniert damit
-  site_host = var.domain_name != "" ? var.domain_name : "${replace(aws_eip.app.public_ip, ".", "-")}.sslip.io"
+  sslip_host = "${replace(aws_eip.app.public_ip, ".", "-")}.sslip.io"
+  site_host  = var.domain_name != "" ? var.domain_name : local.sslip_host
+  # Leiten dauerhaft auf site_host um: www und – mit eigener Domain – die alte sslip-Adresse (alte Links bleiben gültig)
+  redirect_hosts = var.domain_name != "" ? "www.${var.domain_name}, ${local.sslip_host}" : "www.${local.sslip_host}"
 }
 
 # --- IAM: genau die Rechte, die die Instanz braucht ---
@@ -113,14 +116,12 @@ resource "aws_instance" "app" {
     images_bucket   = var.images_bucket_name
     ecr_url         = var.ecr_repository_url
     ssm_prefix      = var.ssm_prefix
-    site_host       = local.site_host
     db_host         = var.db_host
     db_name         = var.db_name
     db_username     = var.db_username
     admin_email     = var.admin_email
     compose_version = var.compose_version
   })
-  user_data_replace_on_change = true
 
   tags = {
     Name         = "${var.name}-app"
@@ -128,8 +129,24 @@ resource "aws_instance" "app" {
   }
 
   lifecycle {
-    ignore_changes = [ami] # neue AMI-Versionen ersetzen die Instanz nicht ungefragt
+    # Neue AMI-Versionen ersetzen die Instanz nicht ungefragt; user_data läuft nur beim Erststart –
+    # spätere Konfiguration kommt über S3 (deploy-Bucket) und SSM, nicht über einen Neuaufbau
+    ignore_changes = [ami, user_data]
   }
+}
+
+# Hostname im Parameter Store statt im Startskript: Ein Domain-Wechsel ist so nur ein Redeployment,
+# kein Neuaufbau der Instanz (user_data_replace_on_change)
+resource "aws_ssm_parameter" "site_host" {
+  name  = "${var.ssm_prefix}/site_host"
+  type  = "String"
+  value = local.site_host
+}
+
+resource "aws_ssm_parameter" "redirect_hosts" {
+  name  = "${var.ssm_prefix}/redirect_hosts"
+  type  = "String"
+  value = local.redirect_hosts
 }
 
 resource "aws_eip_association" "app" {

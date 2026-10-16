@@ -64,6 +64,13 @@ module "compute" {
   deploy_script_etag = module.storage.deploy_script_etag
 }
 
+module "dns" {
+  source    = "./modules/dns"
+  count     = var.dns_zone != "" ? 1 : 0
+  zone_name = var.dns_zone
+  public_ip = module.compute.public_ip
+}
+
 module "budget" {
   source       = "./modules/budget"
   name         = local.name

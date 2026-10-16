@@ -26,3 +26,9 @@
 		reverse_proxy app:8080
 	}
 }
+
+# www und alte Adressen dauerhaft auf die Hauptadresse umleiten (eigenes Zertifikat je Name)
+{$REDIRECT_HOSTS} {
+	header X-Robots-Tag "noindex, nofollow, noarchive"
+	redir https://{$SITE_HOST}{uri} permanent
+}

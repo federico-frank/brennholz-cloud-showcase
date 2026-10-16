@@ -1,5 +1,8 @@
 # Kopieren nach terraform.tfvars (ist per .gitignore ausgeschlossen) und anpassen.
 budget_alert_emails = ["du@example.com"]
 
+# Optional: DNS-Zone in Route 53 anlegen (Nameserver danach beim Registrar eintragen)
+# dns_zone = "example.de"
+
 # Optional: eigene Domain mit A-Record auf die Elastic IP (Output public_ip). Leer = <ip>.sslip.io
 # domain_name = "demo.example.de"

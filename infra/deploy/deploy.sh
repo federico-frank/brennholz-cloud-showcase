@@ -14,6 +14,8 @@ param() {
 }
 
 TAG=$(param app_image_tag)
+SITE_HOST=$(param site_host)
+REDIRECT_HOSTS=$(param redirect_hosts)
 if [ "$TAG" = "none" ]; then
   echo "Noch kein App-Image veröffentlicht – infra/scripts/release.sh ausführen."
   exit 0
@@ -23,6 +25,7 @@ umask 077
 cat > .env <<EOF
 APP_IMAGE=$ECR_URL:$TAG
 SITE_HOST=$SITE_HOST
+REDIRECT_HOSTS=$REDIRECT_HOSTS
 DB_HOST=$DB_HOST
 DB_NAME=$DB_NAME
 DB_USER=$DB_USER

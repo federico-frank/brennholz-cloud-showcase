@@ -39,6 +39,12 @@ variable "domain_name" {
   default     = ""
 }
 
+variable "dns_zone" {
+  description = "Domain, für die eine Route-53-Zone angelegt wird (leer = keine). Unabhängig von domain_name, damit DNS vor dem Umschalten der App steht"
+  type        = string
+  default     = ""
+}
+
 variable "admin_email" {
   description = "Login des Plattform-Admins; das Start-Passwort wird zufällig erzeugt (SSM)"
   type        = string

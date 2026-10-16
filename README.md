@@ -5,7 +5,7 @@ Ein Marktplatz, auf dem Kunden regionale Brennholz- und Baumpflegebetriebe finde
 **Terraform, RabbitMQ, S3 und Prometheus/Grafana**. Fachlogik, Oberfläche und Produktstrategie bleiben im privaten Repository.
 Der Auszug ist deshalb nicht allein lauffähig. Lauffähig ist die Live-Demo:
 
-**Live-Demo:** https://18-199-136-87.sslip.io
+**Live-Demo:** https://federicofrank.com
 Demo-Zugang Betriebsbereich: `demo@brennholz-demo.de` / `demo1234` (Profil, Logo-Upload, Sichtbarkeit, Statistik)
 
 > Die Demo ist für Suchmaschinen gesperrt (`X-Robots-Tag: noindex`). Bewertungen und Badges sind als Beispielwerte gekennzeichnet.
@@ -47,6 +47,7 @@ Contexts sprechen ausschließlich über **Integration Events** miteinander, nie 
 | [`storage`](infra/terraform/modules/storage/main.tf) | Private Buckets: SSE-AES256, nur TLS, Block Public Access, Lifecycle |
 | [`secrets`](infra/terraform/modules/secrets/main.tf) | Alle Passwörter zufällig erzeugt, SecureString in SSM, nichts im Code |
 | [`registry`](infra/terraform/modules/registry/main.tf), [`budget`](infra/terraform/modules/budget/main.tf) | ECR mit unveränderlichen Tags und Lifecycle · Budget-Alarm |
+| [`dns`](infra/terraform/modules/dns/main.tf) | Route-53-Zone der Domain; Hostname und Umleitungen (`www`, alte Adresse) kommen über SSM, ein Domain-Wechsel ist ein Redeployment ohne Neuaufbau |
 
 **Kostenentscheidung:** Fargate + Load Balancer + NAT-Gateway hätte mit allen Diensten ~145 USD/Monat gekostet.
 Eine EC2 mit Docker Compose, RDS und S3 kostet ~50 USD/Monat bei gleicher Funktion. ECS/Fargate ist die Ausbaustufe für echten Betrieb.
